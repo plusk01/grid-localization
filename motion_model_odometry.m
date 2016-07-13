@@ -1,10 +1,11 @@
-function p = motion_model_odometry( xt, ut, xt_d1 )
+function p = motion_model_odometry( xt, ut, xt_d1, params )
 %MOTION_MODEL Motion Model using Odometry for p(xt | ut, xt_d1)
 %   Probabilistic Robotics, Thrun et al., p 134
 %   inputs:
 %       xt = (x_prime y_prime theta_prime): hypothesized successor pose
 %       ut = (xbart_d1 xbart): motion information based on odometry
 %       xt_d1 = (x y theta): initial robot pose
+%       params = (a1 a2 a3 a4): noise parameters
 %   output:
 %       p: the probability of being at the hypothesized pose xt
 %
@@ -46,14 +47,23 @@ function p = motion_model_odometry( xt, ut, xt_d1 )
     
     % Use the rotational and translational deltas to sample a PDF and get
     % the correct posterior probability. This computes p(xt | ut, xt_d1).
-    p1 = prob();
-    p2 = prob();
-    p3 = prob();
+    mu = delta_rot1 - deltahat_rot1;
+    sigma_sq = a1*(deltahat_rot1)^2 + a2*(deltahat_trans)^2;
+    p1 = prob(mu, sigma_sq);
+    
+    mu = delta_trans - deltahat_trans;
+    sigma_sq = a3*(deltahat_trans)^2 + ...
+                        a4*(deltahat_rot1)^2 + a4*(deltahat_rot2)^2;
+    p2 = prob(mu, sigma_sq);
+    
+    mu = delta_rot2 - deltahat_rot2;
+    sigma_sq = a1*(deltahat_rot2)^2 + a2*(deltahat_trans)^2;
+    p3 = prob(mu, sigma_sq);
     
     p = p1*p2*p3;
 end
 
-function p = prob(mu, sigma)
-
+function p = prob(mu, sigma_sq)
+    
 end
 

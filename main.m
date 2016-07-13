@@ -74,7 +74,7 @@ for i = 1:size(moves,1)
 
     % Do grid localization
     probs_d1 = probs; % for safekeeping
-%     probs = grid_localization(probs, ut, zt, map);
+    probs = grid_localization(probs, ut, zt, map);
     
     % Wait for the user to press a key
     pause;
