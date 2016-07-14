@@ -1,6 +1,8 @@
-function showProbabilities( fig, probs )
-%SHOWPROBABILITIES Summary of this function goes here
+function showProbabilities( fig, probs, xt)
+%SHOWPROBABILITIES Show the grid of probabilities, i.e., the 2D PDF
 %   Detailed explanation goes here
+
+    probs = flip(probs);
 
     figure(fig), clf;
     
@@ -15,12 +17,20 @@ function showProbabilities( fig, probs )
 
     % Draw the pseudocolor (checkerboard) plot
     h = pcolor(X,Y,C);
-    colormap(jet);
+    colormap(flipud(gray));
     colorbar;
     
+    % Make visually easy to see
     set(h, 'EdgeColor', 'k');
     set(h, 'LineStyle', ':');
     axis square % make the aspect ratio square
     
+    % Add true robot position (*)
+    if (nargin == 3)
+        hold on;
+        h = plot(xt(1),xt(2),'w*');
+        set(h, 'MarkerSize', 20);
+        set(h, 'LineWidth', 4);
+    end
 end
 

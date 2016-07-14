@@ -11,6 +11,13 @@ function zt = range_finder( xt, map, params )
 %   outputs:
 %       zt: the noisy range measurement
 
+    if (nargin == 2)
+        % If `params` wasn't passed in, that means we want to do
+        % 'ray tracing', i.e., we want the actual distance with no noise
+        % and no max range, Rmax
+        params = [ size(map,1) 0 ];
+    end
+
     % Unpack the params
     Rmax = params(1);
     sigma = params(2);
@@ -27,31 +34,45 @@ function zt = range_finder( xt, map, params )
     dir = [-imag(c) real(c)]; % (row, col) with robot as origin
     % Again, notice that imag(c) is negated to match the fmap
     
+    % Force dir to have integer components
+    dir(find(abs(dir)<2*eps)) = 0;
+    
     % Based on where I am in the map, is there an obstacle in front of me?
     looker = [i j]; % which index is being looked at right now?
     zt = -1;
     
-    % TODO: If not walled in, don't allow the looker to go beyond
-    % matrix indices
-    %     max_look = size(map,1) - looker(find(abs(dir)>eps))
+    % If not walled in, don't allow the looker to go beyond matrix indices
+    if any(dir<(-eps))
+        % Special treatment: if the looker is going in a negative direction
+        % then the max_look needs to be flipped again because of the fmap
+        max_look = looker(find(abs(dir)>eps)) - 1;
+    else
+        max_look = size(map,1) - looker(find(abs(dir)>eps));
+    end
     
     % to see where the robot is (uncomment below)
     tmp = map;
     tmp(looker(1),looker(2)) = 2;
     
-    for k = 1:(Rmax+1)
+    for k = 1:min((Rmax+1),max_look)
         % move looker along line of sight
         looker = looker + dir;
         
         % Uncomment to see step-by-step visualization
-        %tmp(looker(1), looker(2)) = 99
-        %pause;
+%         tmp(looker(1), looker(2)) = 99
+%         pause;
         
         if map(looker(1), looker(2)) == 1
             % an obstacle was hit!
             zt = k;
             break;
         end
+    end
+    
+    if max_look == 0
+        % We were on the edge of the matrix looking out, therefore there is
+        % nothing else to see!
+        zt = 0;
     end
     
     if zt == -1

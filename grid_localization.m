@@ -1,4 +1,4 @@
-function [ pkt ] = grid_localization( pkt_d1, ut, zt, m )
+function [ pkt ] = grid_localization( pkt_d1, ut, zt, m, motion_params )
 %GRID_LOCALIZATION A localizer using the discrete Bayes filter
 %   Using stochastic motion and measurement models, localize the Thrunbot
 %   based on a discrete Bayes filter. Here we use the Odometry Motion Model
@@ -15,30 +15,44 @@ function [ pkt ] = grid_localization( pkt_d1, ut, zt, m )
     count = N*N; % how many cells are there?
     
     % Initialize variables
-    pbarkt = zeros(1,count);
+    pbarkt = zeros(size(m));
+    pkt = zeros(size(m));
     
-    
-    for k = 1:count
+    for k = 1:count % line 2 of Table 8.1
         
         % pick a new hypothesis of were the successor pose will be
         % (i.e., what's the probability of being at xt given that I
         % was initially at xt_d1 and my encoders said I went ut
-        [row, col] = ind2sub([N N], k);
-        xt = [row-1, col-1, 0]; % Silly MATLAB!
+        [rowk, colk] = ind2sub([N N], k);
+        xt = [colk-1, rowk-1, 0]; % Silly MATLAB!
         
-        for i = 1:count
+%         if (is_occupied())
+%            continue; 
+%         end
+        
+        for i = 1:count % line 3 of Table 8.1
             
             % pick a new initial pose to test
-            [row, col] = ind2sub([N N], i);
-            xt_d1 = [row-1, col-1, 0]; % Silly MATLAB!
+            [rowi, coli] = ind2sub([N N], i);
+            xt_d1 = [coli-1, rowi-1, 0]; % Silly MATLAB!
             
-            pbarkt(k) = pbarkt(k) + ...
-                        pkt_d1(i)*motion_model_odometry(xt, ut, xt_d1);
+            pbarkt(rowk,colk) = pbarkt(rowk,colk) + ...
+                pkt_d1(rowi,coli)*...
+                    motion_model_odometry(xt,ut,xt_d1,motion_params);
         end
-%         pkt = eta*pbarkt * beam_range_finder_model();
+        
+        
+        
+        pkt(rowk,colk) = pbarkt(rowk,colk)*...
+                    beam_range_finder_model(zt,xt,m); % line 4
+        % note that there is no eta -- that normalization is done at the
+        % end of this function
     end
     
-    pkt = pbarkt;
-
+%     pkt = pkt/sum(pkt(:));
+    pkt = pbarkt/sum(pbarkt(:));
 end
 
+function flag = is_occupied(xt, xt_d1, m)
+
+end
