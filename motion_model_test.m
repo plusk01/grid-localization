@@ -10,7 +10,7 @@ pbarkt = zeros([size(m) 4]);
 pkt = zeros([size(m) 4]);
 
 % identify the odometry motion (where I was --> where I'm going)
-ut = [ [1 1 90] [2 1 90] ];
+ut = [ [0 0 0] [1 0 0] ];
 
 % Set up the initial belief of where the thrunbot is.
 pkt_d1 = zeros(N,N,4);
@@ -18,6 +18,7 @@ r = N-ut(1);
 c = ut(2)+1;
 d = (ut(3)/90)+1;
 pkt_d1(r,c,d) = 1;
+% pkt_d1 = ones(N,N,4)/(N*N*4);
 
 % motion params
 p = [.18 .4 .18 .0025];
@@ -31,6 +32,9 @@ for k = 1:count
     [rowk, colk, depthk] = ind2sub([N N 4], k); 
     xt = [colk-1, rowk-1, (depthk-1)*90]; % Silly MATLAB!
     rowk = N+1 - rowk;
+    
+    % If successor pose is an obstacle on the map, we should just skip this
+    % iteration.
   
     for i = 1:count % line 3 of Table 8.1
 

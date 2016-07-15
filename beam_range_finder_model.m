@@ -1,13 +1,15 @@
 function q = beam_range_finder_model( zt, xt, m )
 %BEAM_RANGE_FINDER_MODEL Measurement model for the range finder on Thrunbot
 %   Probabilistic Robotics, Thrun et al., p 158, Table 6.1
+%   Returns the probability of getting the noisy measurement zt given that
+%   Thrunbot is currently at the hypothesized successor pose xt and the map
 
     zhit   = 0.85;
     zshort = 0.05;
     pzmax   = 0.05;
     zrand  = 0.05;
     
-    sigma_hit = 0.005;
+    sigma_hit = 0.1;
     zmax = 4;
     
     lambda_short = 1;
@@ -24,15 +26,8 @@ function q = beam_range_finder_model( zt, xt, m )
         
         % -- Ray Casting --------------------------------------------------
         % compute ztk* for the measurement ztk using ray casting
-        try
-            ztk_star = range_finder(xt,m); % use exact range_finder by not
-                                       % passing in noise params
-        catch exc
-            disp(exc)
-%             disp([zt xt]);
-            ztk_star = 0;
-        end;
-        
+        ztk_star = range_finder(xt,m); % use exact range_finder by not
+                                   % passing in noise params
         % I don't really understand this. If we know the exact distance,
         % why are we doing any of this anyways?
         % -----------------------------------------------------------------

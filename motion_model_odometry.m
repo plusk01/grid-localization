@@ -80,10 +80,7 @@ function p = motion_model_odometry( xt, ut, xt_d1, params )
     p3 = prob(a, bb);
     
     p = p1*p2*p3;
-    
-    % If you only want to do a 2D example...
-%     p = p2;
-    
+        
     if isnan(p)
         % Because of the architecture of this MATLAB script, if we get a
         % NaN it is because we are hypothesizing that the robot is in the

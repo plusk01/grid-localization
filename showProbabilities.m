@@ -6,8 +6,6 @@ function showProbabilities( fig, probs, xt)
         xt = [];
     end
 
-    probs = flip(probs);
-
     figure(fig), clf;
     
     % If probs is has a depth, we have to plot each layer
@@ -22,6 +20,9 @@ function drawLayer( all_probs, layer, total_layers, xt )
 
     % access the correct layer
     probs = all_probs(:,:,layer)/sum(all_probs(:));
+    
+    % Flip the probs, much like in drawGrid()
+    probs = (probs);
 
     % Figure out how many subplots are needed
     n = ceil(sqrt(total_layers));

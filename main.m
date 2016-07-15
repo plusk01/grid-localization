@@ -90,6 +90,14 @@ moves = [... %  x y thetad
                 2 1 0;...
 ];
 
+moves = [... %  x y thetad 
+                0 0 0;...
+                1 0 0;...
+                2 0 0;...
+                2 0 90;...
+                2 1 90;...
+];
+
 % initialize xt
 xt = moves(1,:);
 
@@ -114,7 +122,7 @@ for i = 2:size(moves,1)
     % dt = ut(4:6) - ut(1:3);
 
     % Get the range measurements (abs() since it shouldn't be negative)
-    zt = abs(range_finder(xt, map, ranger_params))
+    zt = abs(range_finder(xt, map, ranger_params));
 
     % Do grid localization
     probs_d1 = probs; % for safekeeping
@@ -122,10 +130,7 @@ for i = 2:size(moves,1)
     
     % Update probability map
     showProbabilities(prob_fig, probs, xt);
-    
-    map
-    probs
-    
+       
     % Wait for the user to press a key
     pause;
 

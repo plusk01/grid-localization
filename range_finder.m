@@ -64,7 +64,7 @@ function zt = range_finder( xt, map, params )
         
         if map(looker(1), looker(2)) == 1
             % an obstacle was hit!
-            zt = k;
+            zt = k-1;
             break;
         end
     end
@@ -76,8 +76,14 @@ function zt = range_finder( xt, map, params )
     end
     
     if zt == -1
-        % there was no obstacle detected, so use the Rmax
-        zt = Rmax;
+        if min((Rmax+1),max_look) == max_look
+            % We were constrained by the matrix size, not the range of the
+            % sensor, so zt should be max_look
+            zt = max_look;
+        else
+            % there was no obstacle detected, so use the Rmax
+            zt = Rmax;
+        end
     end
     
     % Apply Gaussian noise to the measurement
