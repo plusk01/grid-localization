@@ -23,15 +23,16 @@ range_sigma = 0.01; % std dev of range finder
 ranger_params = [range_max range_sigma];
 
 % Odometry motion model error params (p. 139, 135, or Figure 5.8)
-% tuned by hand in `test_motion_model`
+% tuned by hand in `test_motion_model`. Decrease to reduce variance
 % [rot1 trans1 trans2 rot2]
 motion_params = [0.18  0.4  0.18  0.0025];
+%motion_params = [0.018  0.04  0.018  0.0025]; % locks quicker
 
 % Measurement model intrinsic parameters
 % tuned by hand in `test_measurement_model`
 % [zhit zshort zmax zrand sigma_hit zmax_range lambda_short]
 measurement_params = [0.85  0.05  0.05  0.05  0.1  4  1];
-measurement_params = [0.45  0.10  0.30  0.15  0.1  4  1];
+%measurement_params = [0.45  0.10  0.30  0.15  0.1  4  1];
 % =========================================================================
 
 % Load the 'map' variable
@@ -39,15 +40,16 @@ load('map.mat');
 
 % What is the size of this map?
 N = size(map,1); % num of rows and columns (it's square)
+depth = 4; % The depth of discretization. How many different headings can
+           % the robot have? 0, 90, 180, 270
 
 % Create the grid
 grid_fig = 1; % Which figure to draw on
 grid = drawGrid(grid_fig, map);
 
-% Initialize the probability map to be equally likely
-depth = 4; % The depth of discretization. How many different headings can
-           % the robot have? 0, 90, 180, 270
-probs = ones([N N depth])/(N*N*depth);
+% Initialize the probability map to be equally likely, except for obstacles
+probs = (ones([N N depth]).*repmat(~flip(map),1,1,depth)); % zero out obstacles
+probs = probs/sum(probs(:)); % normalize
 
 % Create the surface plot for probabilities
 prob_fig = 2; % Which figure to draw on

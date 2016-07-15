@@ -2,10 +2,10 @@ function showProbabilities( fig, probs, xt)
 %SHOWPROBABILITIES Show the grid of probabilities, i.e., the 2D PDF
 %   Detailed explanation goes here
 
-    if (nargin <3)
+    if (nargin < 3)
         xt = [];
     end
-
+    
     figure(fig), clf;
     
     % If probs is has a depth, we have to plot each layer
@@ -18,6 +18,7 @@ function showProbabilities( fig, probs, xt)
         % Indicate when Thrunbot's position is locked on
         [M,I] = max(probs(:));
         if all(probs(:) == M), return; end
+        if sum(probs(:) == M) > size(probs,1)*size(probs,2), return; end
         xhat = ind2state(size(probs),I);
         if all(xt == xhat)
             % Thrunbot knows something!
@@ -46,7 +47,7 @@ function drawLayer( all_probs, layer, total_layers, xt )
     % access the correct layer
     probs = all_probs(:,:,layer)/sum(all_probs(:));
     
-    % Flip the probs, much like in drawGrid()
+    % probs doesn't need to be flipped like the map ... for some reason.
     probs = (probs);
 
     % Figure out how many subplots are needed
