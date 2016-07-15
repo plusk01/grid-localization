@@ -16,11 +16,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear; clc; close all;
 % === Robot Parameters ====================================================
-range_max = 10; % how many unobstructed cells can the range finder see ahead
+range_max = 10; % how many empty cells can the range finder see ahead
 range_sigma = 0.01; % std dev of range finder
 ranger_params = [range_max range_sigma];
 % Odometry motion model error params (p. 139, 135, or Figure 5.8)
-p = [.18 .4 .18 .0025]; % tuned by hand in simulation in `odommodel`
+motion_params = [.18 .4 .18 .0025]; % tuned by hand in `motion_model_test`
 % =========================================================================
 
 % Load the 'map' variable
@@ -29,18 +29,14 @@ load('map.mat');
 % What is the size of this map?
 N = size(map,1); % num of rows and columns (it's square)
 
-% Initializes the robot starting point (x, y, theta (deg))
-% x0 = [floor(N/2) floor(N/2) 90];
-
 % Create the grid
 grid_fig = 1; % Which figure to draw on
 grid = drawGrid(grid_fig, map);
 
-% Create the robot off the grid so that the `bot` handle is valid
-% bot = drawRobot([-1 -1 90], []);
-
 % Initialize the probability map to be equally likely
-probs = ones(N)/(N*N);
+depth = 4; % The depth of discretization. How many different headings can
+           % the robot have? 0, 90, 180, 270
+probs = ones([N N depth])/(N*N*depth);
 
 % Create the surface plot for probabilities
 prob_fig = 2; % Which figure to draw on
@@ -85,11 +81,23 @@ moves = [... %  x y thetad
                 1 8 90;...
 ];
 
+moves = [... %  x y thetad 
+                0 0 0;...
+                0 0 90;...
+                0 1 90;...
+                0 1 0;...
+                1 1 0;...
+                2 1 0;...
+];
+
 % initialize xt
 xt = moves(1,:);
 
-figure(grid_fig);
+% Initializes the robot starting point (x, y, theta (deg))
+figure(grid_fig); % select the grid figure
 bot = drawRobot(xt, []);
+
+% Show the initial global belief of where the robot is
 showProbabilities(prob_fig, probs, xt);
 
 pause;

@@ -1,8 +1,5 @@
+m = zeros(4);
 
-m = [0 0 0;...
-     0 0 0;...
-     0 0 0;];
- 
 
 % What is the size of this map?
 N = size(m,1); % num of rows and columns (it's square)
@@ -13,29 +10,18 @@ pbarkt = zeros([size(m) 4]);
 pkt = zeros([size(m) 4]);
 
 % identify the odometry motion (where I was --> where I'm going)
-ut = [ [1 1 0] [2 1 0] ];
+ut = [ [1 1 90] [2 1 90] ];
 
+% Set up the initial belief of where the thrunbot is.
 pkt_d1 = zeros(N,N,4);
+r = N-ut(1);
+c = ut(2)+1;
+d = (ut(3)/90)+1;
+pkt_d1(r,c,d) = 1;
 
-pkt_d1(:,:,1) = [0 0 0;... % 0 deg
-                 0 1 0;...
-                 0 0 0;];
-             
-pkt_d1(:,:,2) = [0 0 0;... % 90 deg
-                 0 0 0;...
-                 0 0 0;];
-             
-pkt_d1(:,:,3) = [0 0 0;... % 180 deg
-                 0 0 0;...
-                 0 0 0;];
-             
-pkt_d1(:,:,4) = [0 0 0;... % 270 deg
-                 0 0 0;...
-                 0 0 0;];
-  
-  % motion params
-  p = [.18 .4 .18 .0025];
-  
+% motion params
+p = [.18 .4 .18 .0025];
+
 
 for k = 1:count
     
@@ -61,8 +47,5 @@ end
 
 pbarkt = pbarkt/sum(pbarkt(:));
 
-flat = sum(pkt_d1,3);
-showProbabilities(3,flat,ut(1:3))
-
-flat = sum(pbarkt,3);
-showProbabilities(4,flat,ut(4:6))
+showProbabilities(3,pkt_d1,ut(1:3))
+showProbabilities(4,pbarkt,ut(4:6))
