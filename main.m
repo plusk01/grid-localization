@@ -14,7 +14,7 @@
 %
 % Probabilistic Robotics, Thrun et al.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clear; clc; close all;
+clear; clc; %close all;
 % === Robot Parameters ====================================================
 
 % Ultrasonic sensor parameters
@@ -152,15 +152,16 @@ for i = 2:size(moves,1)
 
     % Get the odometry (the commanded ut vector), see p. 134
     ut = [xt_d1 xt];
-    
-    % Show the change in motion in the grid_fig
-    dut = ut(4:6) - ut(1:3);
-    figure(grid_fig);
-    title(['{\Delta}u_t = ('...
-        num2str(dut(1)) ' ' num2str(dut(2)) ' ' num2str(dut(3)) ')^T']);
 
     % Get the range measurements (abs() since it shouldn't be negative)
     zt = abs(range_finder(xt, map, ranger_params));
+    
+    % Show the change in motion and the resulting zt in the grid_fig
+    dut = ut(4:6) - ut(1:3);
+    figure(grid_fig);
+    title(['{\Delta}u_t = ('...
+        num2str(dut(1)) ' ' num2str(dut(2)) ' ' num2str(dut(3)) ')^T'...
+        ', z_t = ' num2str(zt)]);
 
     % Do grid localization
     probs_d1 = probs; % for safekeeping

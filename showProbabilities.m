@@ -18,9 +18,13 @@ function showProbabilities( fig, probs, xt)
         % Indicate when Thrunbot's position is locked on
         [M,I] = max(probs(:));
         if all(probs(:) == M), return; end
-        if sum(probs(:) == M) > size(probs,1)*size(probs,2), return; end
         xhat = ind2state(size(probs),I);
         if all(xt == xhat)
+            
+            % Let's just make sure that this isn't when it's equally likely
+            % everywhere...
+            if sum(probs(:) == M) > size(probs,1)*size(probs,2),return; end
+            
             % Thrunbot knows something!
             annotation('textbox', [0 0.9 1 0.1],...
                 'String', 'Position Locked',...

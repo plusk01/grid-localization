@@ -62,8 +62,13 @@ function [ pkt ] = grid_localization( pkt_d1, ut, zt, m, motion_params, measurem
     % Show the before (fig 3) and after (fig 4) motion models. i.e., these
     % two plots show the probability of being in different positions based
     % on where Thrunbot was before, and what the motion command was.
-    showProbabilities(3,pkt_d1,ut(1:3));
-    showProbabilities(4,pbarkt,ut(4:6));
+    showProbabilities(3,pkt_d1,ut(1:3)); % bel(xt_d1)
+    showProbabilities(4,pbarkt,ut(4:6)); % shows the prediction step
+    
+    % restructure p to plot p(zt={zt}|xt,m)
+    pzt = reshape(p(:,1),[N N depth]);
+    pzt = pzt/sum(pzt(:)); % normalize
+    showProbabilities(5,pzt,ut(4:6)); % shows the measurement probabilities
 end
 
 function flag = is_occupied(xt, m)
