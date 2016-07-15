@@ -16,11 +16,22 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear; clc; close all;
 % === Robot Parameters ====================================================
+
+% Ultrasonic sensor parameters
 range_max = 10; % how many empty cells can the range finder see ahead
 range_sigma = 0.01; % std dev of range finder
 ranger_params = [range_max range_sigma];
+
 % Odometry motion model error params (p. 139, 135, or Figure 5.8)
-motion_params = [.18 .4 .18 .0025]; % tuned by hand in `motion_model_test`
+% tuned by hand in `test_motion_model`
+% [rot1 trans1 trans2 rot2]
+motion_params = [0.18  0.4  0.18  0.0025];
+
+% Measurement model intrinsic parameters
+% tuned by hand in `test_measurement_model`
+% [zhit zshort zmax zrand sigma_hit zmax_range lambda_short]
+measurement_params = [0.85  0.05  0.05  0.05  0.1  4  1];
+measurement_params = [0.45  0.10  0.30  0.15  0.1  4  1];
 % =========================================================================
 
 % Load the 'map' variable
@@ -135,7 +146,7 @@ for i = 2:size(moves,1)
     % Move the robot
     xt_d1 = xt;
     xt = moves(i,:);
-    bot = moveRobot(xt, bot);
+    bot = drawRobot(xt, bot);
 
     % Get the odometry (the commanded ut vector), see p. 134
     ut = [xt_d1 xt];
@@ -143,14 +154,16 @@ for i = 2:size(moves,1)
     % Show the change in motion in the grid_fig
     dut = ut(4:6) - ut(1:3);
     figure(grid_fig);
-    title(['{\Delta}u_t = (' num2str(dut(1)) ' ' num2str(dut(2)) ' ' num2str(dut(3)) ')^T']);
+    title(['{\Delta}u_t = ('...
+        num2str(dut(1)) ' ' num2str(dut(2)) ' ' num2str(dut(3)) ')^T']);
 
     % Get the range measurements (abs() since it shouldn't be negative)
     zt = abs(range_finder(xt, map, ranger_params));
 
     % Do grid localization
     probs_d1 = probs; % for safekeeping
-    probs = grid_localization(probs, ut, zt, map, motion_params);
+    probs = grid_localization(probs, ut, zt, map,...
+                                    motion_params, measurement_params);
     
     % Update probability map
     showProbabilities(prob_fig, probs, xt);

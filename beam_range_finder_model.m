@@ -1,4 +1,4 @@
-function q = beam_range_finder_model( zt, xt, m )
+function q = beam_range_finder_model( zt, xt, m, Theta )
 %BEAM_RANGE_FINDER_MODEL Measurement model for the range finder on Thrunbot
 %   Probabilistic Robotics, Thrun et al., p 158, Table 6.1
 %   Returns the probability of getting the noisy measurement zt given that
@@ -9,18 +9,26 @@ function q = beam_range_finder_model( zt, xt, m )
     % or is it in the grid_localization routine?
 
     % -- Intrinsic Parameters ---------------------------------------------
-    % These should be pulled out and passed in as THETA.
-    % Or these should be found using Table 6.2, p. 160:
+    % These should be found using Table 6.2, p. 160:
+    % They were empirically chosen.
     % Algorithm learn_intrinsic_parameters(Z,X,m)
-    zhit   = 0.85;
-    zshort = 0.05;
-    pzmax   = 0.05;
-    zrand  = 0.05;
     
-    sigma_hit = 0.1;
-    zmax = 4;
+    if (nargin < 4)
+        Theta = [0.85  0.05  0.05  0.05  0.1  4  1];
+    end
     
-    lambda_short = 1;
+    % mixing weights
+    zhit   = Theta(1);
+    zshort = Theta(2);
+    zmax   = Theta(3);
+    zrand  = Theta(4);
+    
+    % std dev of noise of sensor and sensor's max range
+    sigma_hit = Theta(5);
+    zmax_range = Theta(6);
+    
+    % parameter (1/mean) of exponential distribution for short measurements
+    lambda_short = Theta(7);
     % ---------------------------------------------------------------------
 
     K = 1; % there is only one scan associated with a measurement because 
@@ -36,15 +44,18 @@ function q = beam_range_finder_model( zt, xt, m )
         % -- Ray Casting --------------------------------------------------
         % compute ztk* for the measurement ztk using ray casting
         ztk_star = range_finder(xt,m); % use exact range_finder by not
-                                   % passing in noise params
+                                       % passing in noise params
+                                       
         % I don't really understand this. If we know the exact distance,
         % why are we doing any of this anyways?
+        % I suppose 'ray casting' could just mean, use the hypothesized
+        % pose and the map and decide what the scans should be.
         % -----------------------------------------------------------------
         
-        p = zhit   * phit(ztk,xt,m, sigma_hit,ztk_star,zmax)   +...
-            zshort * pshort(ztk,xt,m, lambda_short, ztk_star) +...
-            pzmax   * pmax(ztk,xt,m, zmax)   +...
-            zrand  * prand(ztk,xt,m, zmax);
+        p = zhit   * phit(ztk,xt,m, sigma_hit,ztk_star,zmax_range)  +...
+            zshort * pshort(ztk,xt,m, lambda_short, ztk_star)       +...
+            zmax   * pmax(ztk,xt,m, zmax_range)                     +...
+            zrand  * prand(ztk,xt,m, zmax_range);
         
         q = q*p; % accrue the probability from each scan in zt
     end;

@@ -26,6 +26,8 @@ function handle = drawRobot( xt, handle)
     handle_circle = circle(x, y, r, handle_circle);
     handle_line = heading(x, y, r, theta, handle_line);
     
+    drawnow; % draw the entire robot together
+    
     handle = [handle_circle handle_line];
 end
 
@@ -38,12 +40,10 @@ function handle = circle(x,y,r, handle)
     xp = r*cos(ang);
     yp = r*sin(ang);
     
-    
     if isempty(handle),
         handle = plot(x+xp,y+yp);
     else
         set(handle,'XData',x+xp,'YData',y+yp);
-        drawnow;
     end
 end
 
@@ -55,6 +55,5 @@ function handle = heading(x,y,r,theta, handle)
         handle = plot([x x2],[y y2]);
     else
         set(handle,'XData',[x x2],'YData',[y y2]);
-        drawnow;
     end
 end

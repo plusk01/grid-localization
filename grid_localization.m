@@ -1,4 +1,4 @@
-function [ pkt ] = grid_localization( pkt_d1, ut, zt, m, motion_params )
+function [ pkt ] = grid_localization( pkt_d1, ut, zt, m, motion_params, measurement_params )
 %GRID_LOCALIZATION A localizer using the discrete Bayes filter
 %   Using stochastic motion and measurement models, localize the Thrunbot
 %   based on a discrete Bayes filter. Here we use the Odometry Motion Model
@@ -48,7 +48,7 @@ function [ pkt ] = grid_localization( pkt_d1, ut, zt, m, motion_params )
         % -----------------------------------------------------------------
         
         % -- Measurement update -------------------------------------------
-        p(k,:) = [beam_range_finder_model(zt,xt,m) zt xt];
+        p(k,:)=[beam_range_finder_model(zt,xt,m,measurement_params) zt xt];
         pkt(rowk,colk,depthk) = pbarkt(rowk,colk,depthk)*p(k,1);% line 4
         % note that there is no eta -- that normalization is done at the
         % end of this function
@@ -62,8 +62,8 @@ function [ pkt ] = grid_localization( pkt_d1, ut, zt, m, motion_params )
     % Show the before (fig 3) and after (fig 4) motion models. i.e., these
     % two plots show the probability of being in different positions based
     % on where Thrunbot was before, and what the motion command was.
-    showProbabilities(3,pkt_d1,ut(1:3));
-    showProbabilities(4,pbarkt,ut(4:6));
+    %showProbabilities(3,pkt_d1,ut(1:3));
+    %showProbabilities(4,pbarkt,ut(4:6));
 end
 
 function flag = is_occupied(xt, m)
