@@ -10,9 +10,33 @@ function showProbabilities( fig, probs, xt)
     
     % If probs is has a depth, we have to plot each layer
     K = size(probs,3);
-    
     for i = 1:K
         drawLayer(probs,i,K,xt);
+    end
+    
+    if ~isempty(xt)
+        % Indicate when Thrunbot's position is locked on
+        [~,I] = max(probs(:));
+        xhat = ind2state(size(probs),I);
+        if all(xt == xhat)
+            % Thrunbot knows something!
+            annotation('textbox', [0 0.9 1 0.1],...
+                'String', 'Position Locked',...
+                'EdgeColor', 'None',...
+                'HorizontalAlignment', 'Center',...
+                'FontSize', 14,...
+                'Color', 'r');
+            
+        else
+            % indicate where the highest probability is
+            % Figure out how many subplots are needed
+            n = ceil(sqrt(K));            
+            layer = (xhat(3)/90)+1;
+            subplot(n,n,layer), hold on;
+            h = plot(xhat(1),xhat(2),'rx');
+            set(h, 'MarkerSize', 10);
+            set(h, 'LineWidth', 2);
+        end
     end
 end
 
