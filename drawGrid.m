@@ -27,8 +27,11 @@ function handle = drawGrid( fig, map )
     colormap(gray(2));
     set(h, 'EdgeColor', 'k');
     set(h, 'LineStyle', ':');
-%     axis ij;
     axis square % make the aspect ratio square
+    
+    % Set the tick values so it is clearer to read
+    set(gca, 'XTick', 0:1:M);
+    set(gca, 'YTick', 0:1:N);
     
     % So that you don't have to do this elsewhere
     hold on;

@@ -139,7 +139,11 @@ for i = 2:size(moves,1)
 
     % Get the odometry (the commanded ut vector), see p. 134
     ut = [xt_d1 xt];
-    % dut = ut(4:6) - ut(1:3);
+    
+    % Show the change in motion in the grid_fig
+    dut = ut(4:6) - ut(1:3);
+    figure(grid_fig);
+    title(['{\Delta}u_t = (' num2str(dut(1)) ' ' num2str(dut(2)) ' ' num2str(dut(3)) ')^T']);
 
     % Get the range measurements (abs() since it shouldn't be negative)
     zt = abs(range_finder(xt, map, ranger_params));

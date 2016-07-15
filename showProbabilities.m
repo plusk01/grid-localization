@@ -16,7 +16,8 @@ function showProbabilities( fig, probs, xt)
     
     if ~isempty(xt)
         % Indicate when Thrunbot's position is locked on
-        [~,I] = max(probs(:));
+        [M,I] = max(probs(:));
+        if all(probs(:) == M), return; end
         xhat = ind2state(size(probs),I);
         if all(xt == xhat)
             % Thrunbot knows something!
