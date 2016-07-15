@@ -43,7 +43,7 @@ function [ pkt ] = grid_localization( pkt_d1, ut, zt, m, motion_params )
             
             pbarkt(rowk,colk,depthk) = pbarkt(rowk,colk,depthk) + ...
                 pkt_d1(rowi,coli,depthi)*...
-                    motion_model_odometry(xt,ut,xt_d1,motion_params);
+                    motion_model_with_map(xt,ut,xt_d1,m,motion_params);
         end
         % -----------------------------------------------------------------
         
@@ -62,8 +62,8 @@ function [ pkt ] = grid_localization( pkt_d1, ut, zt, m, motion_params )
     % Show the before (fig 3) and after (fig 4) motion models. i.e., these
     % two plots show the probability of being in different positions based
     % on where Thrunbot was before, and what the motion command was.
-    %showProbabilities(3,pkt_d1,ut(1:3));
-    %showProbabilities(4,pbarkt,ut(4:6));
+    showProbabilities(3,pkt_d1,ut(1:3));
+    showProbabilities(4,pbarkt,ut(4:6));
 end
 
 function flag = is_occupied(xt, m)
@@ -71,4 +71,35 @@ function flag = is_occupied(xt, m)
 
     [i, j, ~] = state2sub(xt, m);
     flag = (m(i, j) == 1);
+end
+
+function p = motion_model_with_map( xt, ut, xt_d1, m, motion_params )
+%MOTION_MODEL_WITH_MAP Use the map to prevent motion through walls
+%   pmap = p(xt | m) and pmotion = p(xt | ut, xt_d1).
+%   See Table 5.7, p. 141
+
+    % Probability of being in a state, given the map of obstacles
+    if is_occupied(xt, m)
+        pmap = 0;
+    else
+        % how many spots in the map?
+        count = size(m,1)*size(m,2);
+        
+        % how many obstacles in the map are there?
+        obstacle_count = sum(m(:));
+        
+        % how many spots could Thrunbot be?
+        N = count - obstacle_count;
+        
+        % If it's equally likely for Thrunbot to be in a non-obstacle spot,
+        % what's the probability of being in the given xt?        
+        pmap = 1/N;
+    end
+    
+    pmotion = motion_model_odometry(xt,ut,xt_d1,motion_params);
+    
+    p = pmotion*pmap; % line 2
+    
+    % Probably need to do some normalization?
+    % Or is that built in to the end of grid_localization?
 end

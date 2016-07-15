@@ -3,7 +3,15 @@ function q = beam_range_finder_model( zt, xt, m )
 %   Probabilistic Robotics, Thrun et al., p 158, Table 6.1
 %   Returns the probability of getting the noisy measurement zt given that
 %   Thrunbot is currently at the hypothesized successor pose xt and the map
+    
+    % TODO: For some reason, probabilities are being returned that are
+    % greater than 1. Is there a normalizing factor missing in this code,
+    % or is it in the grid_localization routine?
 
+    % -- Intrinsic Parameters ---------------------------------------------
+    % These should be pulled out and passed in as THETA.
+    % Or these should be found using Table 6.2, p. 160:
+    % Algorithm learn_intrinsic_parameters(Z,X,m)
     zhit   = 0.85;
     zshort = 0.05;
     pzmax   = 0.05;
@@ -13,6 +21,7 @@ function q = beam_range_finder_model( zt, xt, m )
     zmax = 4;
     
     lambda_short = 1;
+    % ---------------------------------------------------------------------
 
     K = 1; % there is only one scan associated with a measurement because 
            % we are just using an ultrasonic range finder (i.e., what's 
