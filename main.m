@@ -31,8 +31,9 @@ motion_params = [0.18  0.4  0.18  0.0025];
 % Measurement model intrinsic parameters
 % tuned by hand in `test_measurement_model`
 % [zhit zshort zmax zrand sigma_hit zmax_range lambda_short]
-measurement_params = [0.85  0.05  0.05  0.05  0.1  4  1];
-%measurement_params = [0.45  0.10  0.30  0.15  0.1  4  1];
+%measurement_params = [0.85  0.05  0.05  0.05  0.1  4  1]; % good
+measurement_params = [0.40  0.20  0.25  0.15  0.1  4  .5]; % typical
+%measurement_params = [0.15  0.20  0.225  0.125  0.2  4  .5]; % noisy
 % =========================================================================
 
 % Load the 'map' variable
